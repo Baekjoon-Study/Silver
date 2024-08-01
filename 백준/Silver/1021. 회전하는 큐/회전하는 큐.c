@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 
-#define MAX_QUEUE_SIZE 1002
+#define MAX_QUEUE_SIZE 52
 typedef int element;
 typedef struct DequeType {
 	element data[MAX_QUEUE_SIZE];
@@ -60,32 +60,43 @@ element delete_rear(DequeType* q) {
 int main() {
 	DequeType q;
 	init(&q);
-	int N;
-	int balloon_num[MAX_QUEUE_SIZE];
+	int N, M, num, index, move = 0;
 	scanf("%d", &N);
+	scanf("%d", &M);
+	int len = N;
+
 	for (int i = 0; i < N; i++) {
 		add_rear(&q, i + 1);
 	}
-	for (int i = 0; i < N; i++) {
-		scanf("%d", &balloon_num[i]);
-	}
-
-	for (int i = 0; i < N; i++) {
-		printf("%d ", q.data[q.front + 1]);
-		int val = balloon_num[q.data[q.front + 1] - 1];
-		delete_front(&q);
-
-		if (val < 0) {
-			for (int j = 0; j < -1 * val; j++) {
-				add_front(&q, delete_rear(&q));
+	for (int i = 0; i < M; i++) {
+		scanf("%d", &num);
+		// num과 일치하는 값을 가지는 인덱스 탐색
+		for (int j = 1; j < len+1; j++) {
+			if (num == q.data[(q.front + j) % MAX_QUEUE_SIZE]) {
+				index = j;
+				break;
 			}
 		}
-
-		else {
-			for (int j = 0; j < val - 1; j++) {
+		// 오른쪽으로 회전하는게 효율적일 때
+		if (index <= (int)(len / 2)+1) {  // 12345678910 123456789
+			for (int j = 1; j < index; j++) {
 				add_rear(&q, delete_front(&q));
+				move++;
 			}
+			delete_front(&q);
+			len--;
+		}
+		// 왼쪽으로 회전하는게 효율적일 때
+		else {
+			for (int j = 1; j <= len - index + 1; j++) {
+				add_front(&q, delete_rear(&q));
+				move++;
+			}
+			delete_front(&q);
+			len--;
 		}
 	}
+	printf("%d", move);
+
 	return 0;
 }
